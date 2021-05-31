@@ -48,6 +48,17 @@ from ..bert.modeling_bert import (
     BertLMHeadModel,
     BertModel,
 )
+from ..bert_FNet.modeling_fnetbert import (
+    BertForMaskedLM,
+    BertForMultipleChoice,
+    BertForNextSentencePrediction,
+    BertForPreTraining,
+    BertForQuestionAnswering,
+    BertForSequenceClassification,
+    BertForTokenClassification,
+    BertLMHeadModel,
+    FNetBertModel,
+)
 from ..bert_generation.modeling_bert_generation import BertGenerationDecoder, BertGenerationEncoder
 from ..big_bird.modeling_big_bird import (
     BigBirdForCausalLM,
@@ -145,7 +156,7 @@ from ..funnel.modeling_funnel import (
     FunnelModel,
 )
 from ..gpt2.modeling_gpt2 import GPT2ForSequenceClassification, GPT2LMHeadModel, GPT2Model
-from ..gpt_neo.modeling_gpt_neo import GPTNeoForCausalLM, GPTNeoForSequenceClassification, GPTNeoModel
+from ..gpt_neo.modeling_gpt_neo import GPTNeoForCausalLM, GPTNeoModel
 from ..ibert.modeling_ibert import (
     IBertForMaskedLM,
     IBertForMultipleChoice,
@@ -303,6 +314,7 @@ from .configuration_auto import (
     AlbertConfig,
     BartConfig,
     BertConfig,
+    FNetBertConfig,
     BertGenerationConfig,
     BigBirdConfig,
     BigBirdPegasusConfig,
@@ -395,6 +407,7 @@ MODEL_MAPPING = OrderedDict(
         (LayoutLMConfig, LayoutLMModel),
         (SqueezeBertConfig, SqueezeBertModel),
         (BertConfig, BertModel),
+        (FNetBertConfig, FNetBertModel),
         (OpenAIGPTConfig, OpenAIGPTModel),
         (GPT2Config, GPT2Model),
         (MegatronBertConfig, MegatronBertModel),
@@ -438,6 +451,7 @@ MODEL_FOR_PRETRAINING_MAPPING = OrderedDict(
         (RobertaConfig, RobertaForMaskedLM),
         (SqueezeBertConfig, SqueezeBertForMaskedLM),
         (BertConfig, BertForPreTraining),
+        (FNetBertConfig, BertForPreTraining),
         (BigBirdConfig, BigBirdForPreTraining),
         (OpenAIGPTConfig, OpenAIGPTLMHeadModel),
         (GPT2Config, GPT2LMHeadModel),
@@ -485,6 +499,7 @@ MODEL_WITH_LM_HEAD_MAPPING = OrderedDict(
         (RobertaConfig, RobertaForMaskedLM),
         (SqueezeBertConfig, SqueezeBertForMaskedLM),
         (BertConfig, BertForMaskedLM),
+        (FNetBertConfig, BertForMaskedLM),
         (OpenAIGPTConfig, OpenAIGPTLMHeadModel),
         (GPT2Config, GPT2LMHeadModel),
         (MegatronBertConfig, MegatronBertForMaskedLM),
@@ -518,6 +533,7 @@ MODEL_FOR_CAUSAL_LM_MAPPING = OrderedDict(
         (XLMRobertaConfig, XLMRobertaForCausalLM),
         (RobertaConfig, RobertaForCausalLM),
         (BertConfig, BertLMHeadModel),
+        (FNetBertConfig, BertLMHeadModel),
         (OpenAIGPTConfig, OpenAIGPTLMHeadModel),
         (GPT2Config, GPT2LMHeadModel),
         (TransfoXLConfig, TransfoXLLMHeadModel),
@@ -567,6 +583,7 @@ MODEL_FOR_MASKED_LM_MAPPING = OrderedDict(
         (RobertaConfig, RobertaForMaskedLM),
         (SqueezeBertConfig, SqueezeBertForMaskedLM),
         (BertConfig, BertForMaskedLM),
+        (FNetBertConfig, BertForMaskedLM),
         (MegatronBertConfig, MegatronBertForMaskedLM),
         (MobileBertConfig, MobileBertForMaskedLM),
         (FlaubertConfig, FlaubertWithLMHeadModel),
@@ -622,6 +639,7 @@ MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING = OrderedDict(
         (SqueezeBertConfig, SqueezeBertForSequenceClassification),
         (LayoutLMConfig, LayoutLMForSequenceClassification),
         (BertConfig, BertForSequenceClassification),
+        (FNetBertConfig, BertForSequenceClassification),
         (XLNetConfig, XLNetForSequenceClassification),
         (MegatronBertConfig, MegatronBertForSequenceClassification),
         (MobileBertConfig, MobileBertForSequenceClassification),
@@ -632,7 +650,6 @@ MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING = OrderedDict(
         (DebertaConfig, DebertaForSequenceClassification),
         (DebertaV2Config, DebertaV2ForSequenceClassification),
         (GPT2Config, GPT2ForSequenceClassification),
-        (GPTNeoConfig, GPTNeoForSequenceClassification),
         (OpenAIGPTConfig, OpenAIGPTForSequenceClassification),
         (ReformerConfig, ReformerForSequenceClassification),
         (CTRLConfig, CTRLForSequenceClassification),
@@ -661,6 +678,7 @@ MODEL_FOR_QUESTION_ANSWERING_MAPPING = OrderedDict(
         (RobertaConfig, RobertaForQuestionAnswering),
         (SqueezeBertConfig, SqueezeBertForQuestionAnswering),
         (BertConfig, BertForQuestionAnswering),
+        (FNetBertConfig, BertForQuestionAnswering),
         (XLNetConfig, XLNetForQuestionAnsweringSimple),
         (FlaubertConfig, FlaubertForQuestionAnsweringSimple),
         (MegatronBertConfig, MegatronBertForQuestionAnswering),
@@ -700,6 +718,7 @@ MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING = OrderedDict(
         (RobertaConfig, RobertaForTokenClassification),
         (SqueezeBertConfig, SqueezeBertForTokenClassification),
         (BertConfig, BertForTokenClassification),
+        (FNetBertConfig, BertForTokenClassification),
         (MegatronBertConfig, MegatronBertForTokenClassification),
         (MobileBertConfig, MobileBertForTokenClassification),
         (XLNetConfig, XLNetForTokenClassification),
@@ -727,6 +746,7 @@ MODEL_FOR_MULTIPLE_CHOICE_MAPPING = OrderedDict(
         (RobertaConfig, RobertaForMultipleChoice),
         (SqueezeBertConfig, SqueezeBertForMultipleChoice),
         (BertConfig, BertForMultipleChoice),
+        (FNetBertConfig, BertForMultipleChoice),
         (DistilBertConfig, DistilBertForMultipleChoice),
         (MegatronBertConfig, MegatronBertForMultipleChoice),
         (MobileBertConfig, MobileBertForMultipleChoice),
@@ -743,6 +763,7 @@ MODEL_FOR_MULTIPLE_CHOICE_MAPPING = OrderedDict(
 MODEL_FOR_NEXT_SENTENCE_PREDICTION_MAPPING = OrderedDict(
     [
         (BertConfig, BertForNextSentencePrediction),
+        (FNetBertConfig, BertForNextSentencePrediction),
         (MegatronBertConfig, MegatronBertForNextSentencePrediction),
         (MobileBertConfig, MobileBertForNextSentencePrediction),
     ]

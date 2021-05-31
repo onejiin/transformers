@@ -44,7 +44,7 @@ from transformers import (
     set_seed,
 )
 from transformers.testing_utils import CaptureLogger
-from transformers.trainer_utils import get_last_checkpoint
+from transformers.trainer_utils import get_last_checkpoint, is_main_process
 from transformers.utils import check_min_version
 
 
@@ -75,13 +75,6 @@ class ModelArguments:
         default=None,
         metadata={"help": "If training from scratch, pass a model type from the list: " + ", ".join(MODEL_TYPES)},
     )
-    config_overrides: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "Override some existing default config settings when a model is trained from scratch. Example: "
-            "n_embd=10,resid_pdrop=0.2,scale_attn_weights=false,summary_type=cls_index"
-        },
-    )
     config_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
     )
@@ -107,12 +100,6 @@ class ModelArguments:
             "with private models)."
         },
     )
-
-    def __post_init__(self):
-        if self.config_overrides is not None and (self.config_name is not None or self.model_name_or_path is not None):
-            raise ValueError(
-                "--config_overrides can't be used in combination with --config_name or --model_name_or_path"
-            )
 
 
 @dataclass
@@ -215,7 +202,7 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
-    logger.setLevel(logging.INFO if training_args.should_log else logging.WARN)
+    logger.setLevel(logging.INFO if is_main_process(training_args.local_rank) else logging.WARN)
 
     # Log on each process the small summary:
     logger.warning(
@@ -223,7 +210,7 @@ def main():
         + f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
     )
     # Set the verbosity to info of the Transformers logger (on main process only):
-    if training_args.should_log:
+    if is_main_process(training_args.local_rank):
         transformers.utils.logging.set_verbosity_info()
         transformers.utils.logging.enable_default_handler()
         transformers.utils.logging.enable_explicit_format()
@@ -292,9 +279,6 @@ def main():
     else:
         config = CONFIG_MAPPING[model_args.model_type]()
         logger.warning("You are instantiating a new config instance from scratch.")
-        if model_args.config_overrides is not None:
-            logger.info(f"Overriding config: {model_args.config_overrides}")
-            config.update_from_string(model_args.config_overrides)
 
     tokenizer_kwargs = {
         "cache_dir": model_args.cache_dir,
@@ -322,9 +306,8 @@ def main():
             use_auth_token=True if model_args.use_auth_token else None,
         )
     else:
+        logger.info("Training new model from scratch")
         model = AutoModelForCausalLM.from_config(config)
-        n_params = sum(dict((p.data_ptr(), p.numel()) for p in model.parameters()).values())
-        logger.info(f"Training new model from scratch - Total size={n_params/2**20:.2f}M params")
 
     model.resize_token_embeddings(len(tokenizer))
 
@@ -457,10 +440,7 @@ def main():
 
         max_eval_samples = data_args.max_eval_samples if data_args.max_eval_samples is not None else len(eval_dataset)
         metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
-        try:
-            perplexity = math.exp(metrics["eval_loss"])
-        except OverflowError:
-            perplexity = float("inf")
+        perplexity = math.exp(metrics["eval_loss"])
         metrics["perplexity"] = perplexity
 
         trainer.log_metrics("eval", metrics)

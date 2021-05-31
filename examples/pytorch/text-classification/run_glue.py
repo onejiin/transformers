@@ -26,6 +26,8 @@ from typing import Optional
 import numpy as np
 from datasets import load_dataset, load_metric
 
+import sys
+sys.path.append('/home/svcapp/userdata/Transformer/huggingface/transformers/src')
 import transformers
 from transformers import (
     AutoConfig,
@@ -40,7 +42,7 @@ from transformers import (
     default_data_collator,
     set_seed,
 )
-from transformers.trainer_utils import get_last_checkpoint
+from transformers.trainer_utils import get_last_checkpoint, is_main_process
 from transformers.utils import check_min_version
 
 
@@ -216,7 +218,7 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
-    logger.setLevel(logging.INFO if training_args.should_log else logging.WARN)
+    logger.setLevel(logging.INFO if is_main_process(training_args.local_rank) else logging.WARN)
 
     # Log on each process the small summary:
     logger.warning(
@@ -224,7 +226,7 @@ def main():
         + f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
     )
     # Set the verbosity to info of the Transformers logger (on main process only):
-    if training_args.should_log:
+    if is_main_process(training_args.local_rank):
         transformers.utils.logging.set_verbosity_info()
         transformers.utils.logging.enable_default_handler()
         transformers.utils.logging.enable_explicit_format()

@@ -78,9 +78,6 @@ GreedySearchOutput
 .. autoclass:: transformers.generation_utils.GreedySearchEncoderDecoderOutput
     :members:
 
-.. autoclass:: transformers.generation_flax_utils.FlaxGreedySearchOutput
-    :members:
-
 
 SampleOutput
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,9 +86,6 @@ SampleOutput
     :members:
 
 .. autoclass:: transformers.generation_utils.SampleEncoderDecoderOutput
-    :members:
-
-.. autoclass:: transformers.generation_flax_utils.FlaxSampleOutput
     :members:
 
 
@@ -164,24 +158,6 @@ generation.
     :members: __call__
 
 .. autoclass:: transformers.InfNanRemoveLogitsProcessor
-    :members: __call__
-
-.. autoclass:: transformers.FlaxLogitsProcessor
-    :members: __call__
-
-.. autoclass:: transformers.FlaxLogitsProcessorList
-    :members: __call__
-
-.. autoclass:: transformers.FlaxLogitsWarper
-    :members: __call__
-
-.. autoclass:: transformers.FlaxTemperatureLogitsWarper
-    :members: __call__
-
-.. autoclass:: transformers.FlaxTopPLogitsWarper
-    :members: __call__
-
-.. autoclass:: transformers.FlaxTopKLogitsWarper
     :members: __call__
 
 

@@ -131,7 +131,7 @@ directly create a PyTorch version of your TensorFlow model:
 
 .. code-block:: python
 
-    from transformers import AutoModel
+    from transfomers import AutoModel
 
     model = AutoModel.from_pretrained(save_directory, from_tf=True)
 

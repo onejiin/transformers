@@ -20,6 +20,7 @@ from collections import OrderedDict
 from ...configuration_utils import PretrainedConfig
 from ..albert.configuration_albert import ALBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, AlbertConfig
 from ..bart.configuration_bart import BART_PRETRAINED_CONFIG_ARCHIVE_MAP, BartConfig
+from ..bert_FNet.configuration_fnetbert import FNetBERT_PRETRAINED_CONFIG_ARCHIVE_MAP, FNetBertConfig
 from ..bert.configuration_bert import BERT_PRETRAINED_CONFIG_ARCHIVE_MAP, BertConfig
 from ..bert_generation.configuration_bert_generation import BertGenerationConfig
 from ..big_bird.configuration_big_bird import BIG_BIRD_PRETRAINED_CONFIG_ARCHIVE_MAP, BigBirdConfig
@@ -108,6 +109,7 @@ ALL_PRETRAINED_CONFIG_ARCHIVE_MAP = dict(
         LED_PRETRAINED_CONFIG_ARCHIVE_MAP,
         BLENDERBOT_SMALL_PRETRAINED_CONFIG_ARCHIVE_MAP,
         BERT_PRETRAINED_CONFIG_ARCHIVE_MAP,
+        FNetBERT_PRETRAINED_CONFIG_ARCHIVE_MAP,
         BART_PRETRAINED_CONFIG_ARCHIVE_MAP,
         BLENDERBOT_PRETRAINED_CONFIG_ARCHIVE_MAP,
         MBART_PRETRAINED_CONFIG_ARCHIVE_MAP,
@@ -188,6 +190,7 @@ CONFIG_MAPPING = OrderedDict(
         ("fsmt", FSMTConfig),
         ("squeezebert", SqueezeBertConfig),
         ("bert", BertConfig),
+        ("bert_FNet", FNetBertConfig),
         ("openai-gpt", OpenAIGPTConfig),
         ("gpt2", GPT2Config),
         ("transfo-xl", TransfoXLConfig),
@@ -246,6 +249,7 @@ MODEL_NAMES_MAPPING = OrderedDict(
         ("fsmt", "FairSeq Machine-Translation"),
         ("squeezebert", "SqueezeBERT"),
         ("bert", "BERT"),
+        ("bert_FNet", "BERT FNet"),
         ("openai-gpt", "OpenAI GPT"),
         ("gpt2", "OpenAI GPT-2"),
         ("transfo-xl", "Transformer-XL"),
@@ -431,7 +435,10 @@ class AutoConfig:
             {'foo': False}
         """
         kwargs["_from_auto"] = True
-        config_dict, _ = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+        if pretrained_model_name_or_path == 'fnetbert-base-cased':
+            config_dict, _ = PretrainedConfig.get_config_dict('bert-base-cased', **kwargs)
+        else:
+            config_dict, _ = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
         if "model_type" in config_dict:
             config_class = CONFIG_MAPPING[config_dict["model_type"]]
             return config_class.from_dict(config_dict, **kwargs)

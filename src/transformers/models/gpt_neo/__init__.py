@@ -28,7 +28,6 @@ if is_torch_available():
     _import_structure["modeling_gpt_neo"] = [
         "GPT_NEO_PRETRAINED_MODEL_ARCHIVE_LIST",
         "GPTNeoForCausalLM",
-        "GPTNeoForSequenceClassification",
         "GPTNeoModel",
         "GPTNeoPreTrainedModel",
         "load_tf_weights_in_gpt_neo",
@@ -42,7 +41,6 @@ if TYPE_CHECKING:
         from .modeling_gpt_neo import (
             GPT_NEO_PRETRAINED_MODEL_ARCHIVE_LIST,
             GPTNeoForCausalLM,
-            GPTNeoForSequenceClassification,
             GPTNeoModel,
             GPTNeoPreTrainedModel,
             load_tf_weights_in_gpt_neo,

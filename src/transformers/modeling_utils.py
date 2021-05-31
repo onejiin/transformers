@@ -1121,12 +1121,20 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin, GenerationMixin, PushToHubMix
                 else:
                     filename = WEIGHTS_NAME
 
-                archive_file = hf_bucket_url(
-                    pretrained_model_name_or_path,
-                    filename=filename,
-                    revision=revision,
-                    mirror=mirror,
-                )
+                if pretrained_model_name_or_path == 'fnetbert-base-cased':
+                    archive_file = hf_bucket_url(
+                        'bert-base-cased',
+                        filename=filename,
+                        revision=revision,
+                        mirror=mirror,
+                    )
+                else:
+                    archive_file = hf_bucket_url(
+                        pretrained_model_name_or_path,
+                        filename=filename,
+                        revision=revision,
+                        mirror=mirror,
+                    )
 
             try:
                 # Load from URL or cache if already cached

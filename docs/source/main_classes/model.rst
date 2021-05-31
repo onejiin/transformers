@@ -26,9 +26,8 @@ are common among all the models to:
 
 The other methods that are common to each model are defined in :class:`~transformers.modeling_utils.ModuleUtilsMixin`
 (for the PyTorch models) and :class:`~transformers.modeling_tf_utils.TFModuleUtilsMixin` (for the TensorFlow models) or
-for text generation, :class:`~transformers.generation_utils.GenerationMixin` (for the PyTorch models),
-:class:`~transformers.generation_tf_utils.TFGenerationMixin` (for the TensorFlow models) and
-:class:`~transformers.generation_flax_utils.FlaxGenerationMixin` (for the Flax/JAX models).
+for text generation, :class:`~transformers.generation_utils.GenerationMixin` (for the PyTorch models) and
+:class:`~transformers.generation_tf_utils.TFGenerationMixin` (for the TensorFlow models)
 
 
 PreTrainedModel
@@ -73,9 +72,6 @@ Generation
     :members:
 
 .. autoclass:: transformers.generation_tf_utils.TFGenerationMixin
-    :members:
-
-.. autoclass:: transformers.generation_flax_utils.FlaxGenerationMixin
     :members:
 
 

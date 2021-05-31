@@ -486,10 +486,7 @@ def main():
 
         losses = torch.cat(losses)
         losses = losses[: len(eval_dataset)]
-        try:
-            perplexity = math.exp(torch.mean(losses))
-        except OverflowError:
-            perplexity = float("inf")
+        perplexity = math.exp(torch.mean(losses))
 
         logger.info(f"epoch {epoch}: perplexity: {perplexity}")
 

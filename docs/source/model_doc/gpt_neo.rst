@@ -65,9 +65,3 @@ GPTNeoForCausalLM
 
 .. autoclass:: transformers.GPTNeoForCausalLM
     :members: forward
-
-GPTNeoForSequenceClassification
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: transformers.GPTNeoForSequenceClassification
-    :members: forward

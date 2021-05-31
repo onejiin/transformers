@@ -22,6 +22,7 @@ from . import (
     bart,
     barthez,
     bert,
+    bert_FNet,
     bert_generation,
     bert_japanese,
     bertweet,

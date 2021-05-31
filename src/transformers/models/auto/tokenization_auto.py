@@ -23,6 +23,7 @@ from ...file_utils import is_sentencepiece_available, is_tokenizers_available
 from ...utils import logging
 from ..bart.tokenization_bart import BartTokenizer
 from ..bert.tokenization_bert import BertTokenizer
+from ..bert_FNet.tokenization_fnetbert import FNetBertTokenizer
 from ..bert_japanese.tokenization_bert_japanese import BertJapaneseTokenizer
 from ..bertweet.tokenization_bertweet import BertweetTokenizer
 from ..blenderbot.tokenization_blenderbot import BlenderbotTokenizer
@@ -62,6 +63,7 @@ from .configuration_auto import (
     AutoConfig,
     BartConfig,
     BertConfig,
+    FNetBertConfig,
     BertGenerationConfig,
     BigBirdConfig,
     BigBirdPegasusConfig,
@@ -160,6 +162,7 @@ if is_tokenizers_available():
     from ..bart.tokenization_bart_fast import BartTokenizerFast
     from ..barthez.tokenization_barthez_fast import BarthezTokenizerFast
     from ..bert.tokenization_bert_fast import BertTokenizerFast
+    from ..bert_FNet.tokenization_fnetbert_fast import FNetBertTokenizerFast
     from ..big_bird.tokenization_big_bird_fast import BigBirdTokenizerFast
     from ..camembert.tokenization_camembert_fast import CamembertTokenizerFast
     from ..convbert.tokenization_convbert_fast import ConvBertTokenizerFast
@@ -194,6 +197,7 @@ else:
     BartTokenizerFast = None
     BarthezTokenizerFast = None
     BertTokenizerFast = None
+    FNetBertTokenizerFast = None
     BigBirdTokenizerFast = None
     CamembertTokenizerFast = None
     ConvBertTokenizerFast = None
@@ -254,6 +258,7 @@ TOKENIZER_MAPPING = OrderedDict(
         (DPRConfig, (DPRQuestionEncoderTokenizer, DPRQuestionEncoderTokenizerFast)),
         (SqueezeBertConfig, (SqueezeBertTokenizer, SqueezeBertTokenizerFast)),
         (BertConfig, (BertTokenizer, BertTokenizerFast)),
+        (FNetBertConfig, (FNetBertTokenizer, FNetBertTokenizerFast)),
         (OpenAIGPTConfig, (OpenAIGPTTokenizer, OpenAIGPTTokenizerFast)),
         (GPT2Config, (GPT2Tokenizer, GPT2TokenizerFast)),
         (TransfoXLConfig, (TransfoXLTokenizer, None)),
@@ -435,6 +440,8 @@ class AutoTokenizer:
         if type(config) in TOKENIZER_MAPPING.keys():
             tokenizer_class_py, tokenizer_class_fast = TOKENIZER_MAPPING[type(config)]
             if tokenizer_class_fast and (use_fast or tokenizer_class_py is None):
+                if pretrained_model_name_or_path == 'fnetbert-base-cased':
+                    return tokenizer_class_fast.from_pretrained('bert-base-cased', *inputs, **kwargs)
                 return tokenizer_class_fast.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
             else:
                 if tokenizer_class_py is not None:

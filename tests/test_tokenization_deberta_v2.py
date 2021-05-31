@@ -102,11 +102,10 @@ class DebertaV2TokenizationTest(TokenizerTesterMixin, unittest.TestCase):
         encoded_sentence = tokenizer.build_inputs_with_special_tokens(text)
         encoded_pair = tokenizer.build_inputs_with_special_tokens(text, text_2)
 
-        self.assertEqual([tokenizer.cls_token_id] + text + [tokenizer.sep_token_id], encoded_sentence)
-        self.assertEqual(
-            [tokenizer.cls_token_id] + text + [tokenizer.sep_token_id] + text_2 + [tokenizer.sep_token_id],
-            encoded_pair,
-        )
+        assert encoded_sentence == [tokenizer.cls_token_id] + text + [tokenizer.sep_token_id]
+        assert encoded_pair == [tokenizer.cls_token_id] + text + [tokenizer.sep_token_id] + text_2 + [
+            tokenizer.sep_token_id
+        ]
 
     def test_tokenizer_integration(self):
         tokenizer_classes = [self.tokenizer_class]
