@@ -398,6 +398,166 @@ class BertAttention(nn.Module):
         return outputs
 
 
+# ---------------- Applied FNet ---------------- #
+#  reference :                                   #
+#  https://github.com/rishikksh20/FNet-pytorch/  #
+#                                                #
+# 1. duplication attention
+class FFT_BertSelfAttention(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
+            raise ValueError(
+                f"The hidden size ({config.hidden_size}) is not a multiple of the number of attention "
+                f"heads ({config.num_attention_heads})"
+            )
+
+        self.num_attention_heads = config.num_attention_heads
+        self.attention_head_size = int(config.hidden_size / config.num_attention_heads)
+        self.all_head_size = self.num_attention_heads * self.attention_head_size
+
+        self.query = nn.Linear(config.hidden_size, self.all_head_size)
+        self.key = nn.Linear(config.hidden_size, self.all_head_size)
+        self.value = nn.Linear(config.hidden_size, self.all_head_size)
+
+        self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
+        self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
+        if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
+            self.max_position_embeddings = config.max_position_embeddings
+            self.distance_embedding = nn.Embedding(2 * config.max_position_embeddings - 1, self.attention_head_size)
+
+        self.is_decoder = config.is_decoder
+
+        # for FeedForward in FNet
+        self.FF_linear = nn.Linear(config.hidden_size, config.hidden_size) # <== dimention Re-check!
+        self.GELU = nn.GELU()
+        self.Norm = nn.LayerNorm(config.hidden_size)
+        # nn.Dropout(dropout),
+        # nn.Linear(hidden_dim, dim),
+        # nn.Dropout(dropout)
+
+    def transpose_for_scores(self, x):
+        new_x_shape = x.size()[:-1] + (self.num_attention_heads, self.attention_head_size)
+        x = x.view(*new_x_shape)
+        return x.permute(0, 2, 1, 3)
+
+    def forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        past_key_value=None,
+        output_attentions=False,
+    ):
+        output_attentions = False
+        past_key_value = None
+
+        x = torch.fft.fft(torch.fft.fft(hidden_states, dim=-1), dim=-2).real + hidden_states
+        x = self.Norm(x)
+        x = self.FF_linear(x)
+        x = self.GELU(x)
+        x = self.dropout(x)
+        x = self.FF_linear(x)
+        context_layer = self.dropout(x)
+        attention_probs = self.Norm(context_layer)
+
+        outputs = (context_layer, attention_probs) if output_attentions else (context_layer,)
+
+        if self.is_decoder:
+            outputs = outputs + (past_key_value,)
+        return outputs
+
+# 2. Block Class define
+class FeedForward(nn.Module):
+    def __init__(self, dim, hidden_dim, dropout=0.):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, dim),
+            nn.Dropout(dropout)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class PreNorm(nn.Module):
+    def __init__(self, dim, fn):
+        super().__init__()
+        self.norm = nn.LayerNorm(dim)
+        self.fn = fn
+
+    def forward(self, x, **kwargs):
+        return self.fn(self.norm(x), **kwargs)
+
+
+class FNetBlock(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        x = torch.fft.fft(torch.fft.fft(x, dim=-1), dim=-2).real
+        return x
+
+# FFT Block
+class FFT_BertAttention(nn.Module):
+    def __init__(self, config, dim):
+        super().__init__()
+        self.self = FFT_BertSelfAttention(config)
+        self.output = BertSelfOutput(config)
+        self.pruned_heads = set()
+        self.dim = 768
+        self.mlp_dim = 768#hidden_size=768
+        self.dropout = 0.1#attention_probs_dropout_prob=0.1
+        # self.PreNorm = PreNorm
+        # self.FNetBlock = FNetBlock
+        # self.FeedForward = FeedForward
+
+    def forward(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        past_key_value=None,
+        output_attentions=False,
+    ):
+        # 2. self-coding method
+        # attn = PreNorm(self.dim, FNetBlock())
+        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        # attn = attn.to(device)
+        # ff = PreNorm(self.dim, FeedForward(self.dim, self.mlp_dim, dropout = self.dropout))
+        # ff = ff.to(device)
+        #
+        # attention_output = attn(hidden_states) + hidden_states
+        # attention_output = ff(attention_output) + attention_output
+
+        # 1, duplication methods
+        self_outputs = self.self(
+            hidden_states,
+            attention_mask,
+            head_mask,
+            encoder_hidden_states,
+            encoder_attention_mask,
+            past_key_value,
+            output_attentions,
+        )
+
+        # outputs = self_outputs + attention_output
+        # outputs = self.output(ff, attention_output)
+        # outputs = (attention_output,) + self_outputs[1:]
+
+        attention_output = self.output(self_outputs[0], hidden_states)
+        outputs = (attention_output,) + self_outputs[1:]  # add attentions if we output them
+        return outputs
+# -------------- Applied FNet -------------- #
+
+
 class BertIntermediate(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -432,12 +592,12 @@ class BertLayer(nn.Module):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
-        self.attention = BertAttention(config)
+        self.attention = FFT_BertAttention(config, self.seq_len_dim)
         self.is_decoder = config.is_decoder
         self.add_cross_attention = config.add_cross_attention
         if self.add_cross_attention:
             assert self.is_decoder, f"{self} should be used as a decoder model if cross attention is added"
-            self.crossattention = BertAttention(config)
+            self.crossattention = FFT_BertAttention(config, self.seq_len_dim)
         self.intermediate = BertIntermediate(config)
         self.output = BertOutput(config)
 
