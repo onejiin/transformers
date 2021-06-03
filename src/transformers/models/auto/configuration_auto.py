@@ -440,7 +440,10 @@ class AutoConfig:
         else:
             config_dict, _ = PretrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
         if "model_type" in config_dict:
-            config_class = CONFIG_MAPPING[config_dict["model_type"]]
+            if pretrained_model_name_or_path == 'fnetbert-base-cased':
+                config_class = CONFIG_MAPPING["bert_FNet"]
+            else:
+                config_class = CONFIG_MAPPING[config_dict["model_type"]]
             return config_class.from_dict(config_dict, **kwargs)
         else:
             # Fallback: use pattern matching on the string.

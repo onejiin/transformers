@@ -39,15 +39,15 @@ if is_tokenizers_available():
 if is_torch_available():
     _import_structure["modeling_fnetbert"] = [
         "FNetBERT_PRETRAINED_MODEL_ARCHIVE_LIST",
-        "BertForMaskedLM",
-        "BertForMultipleChoice",
-        "BertForNextSentencePrediction",
-        "BertForPreTraining",
-        "BertForQuestionAnswering",
-        "BertForSequenceClassification",
-        "BertForTokenClassification",
+        "FNetBertForMaskedLM",
+        "FNetBertForMultipleChoice",
+        "FNetBertForNextSentencePrediction",
+        "FNetBertForPreTraining",
+        "FNetBertForQuestionAnswering",
+        "FNetBertForSequenceClassification",
+        "FNetBertForTokenClassification",
         "BertLayer",
-        "BertLMHeadModel",
+        "FNetBertLMHeadModel",
         "FNetBertModel",
         "BertPreTrainedModel",
         "load_tf_weights_in_bert",
@@ -88,21 +88,21 @@ if TYPE_CHECKING:
     from .tokenization_fnetbert import BasicTokenizer, FNetBertTokenizer, WordpieceTokenizer
 
     if is_tokenizers_available():
-        from .tokenization_fnetbert_fast import BertTokenizerFast
+        from .tokenization_fnetbert_fast import FNetBertTokenizerFast
 
     if is_torch_available():
         from .modeling_fnetbert import (
-            BERT_PRETRAINED_MODEL_ARCHIVE_LIST,
-            BertForMaskedLM,
-            BertForMultipleChoice,
-            BertForNextSentencePrediction,
-            BertForPreTraining,
-            BertForQuestionAnswering,
-            BertForSequenceClassification,
-            BertForTokenClassification,
+            FNetBERT_PRETRAINED_MODEL_ARCHIVE_LIST,
+            FNetBertForMaskedLM,
+            FNetBertForMultipleChoice,
+            FNetBertForNextSentencePrediction,
+            FNetBertForPreTraining,
+            FNetBertForQuestionAnswering,
+            FNetBertForSequenceClassification,
+            FNetBertForTokenClassification,
             BertLayer,
-            BertLMHeadModel,
-            BertModel,
+            FNetBertLMHeadModel,
+            FNetBertModel,
             BertPreTrainedModel,
             load_tf_weights_in_bert,
         )

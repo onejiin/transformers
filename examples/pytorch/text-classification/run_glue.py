@@ -26,8 +26,6 @@ from typing import Optional
 import numpy as np
 from datasets import load_dataset, load_metric
 
-import sys
-sys.path.append('/home/svcapp/userdata/Transformer/huggingface/transformers/src')
 import transformers
 from transformers import (
     AutoConfig,

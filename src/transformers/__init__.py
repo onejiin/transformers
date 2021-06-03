@@ -1615,6 +1615,13 @@ if TYPE_CHECKING:
         BertTokenizer,
         WordpieceTokenizer,
     )
+    from .models.bert_FNet import (
+        FNetBERT_PRETRAINED_CONFIG_ARCHIVE_MAP,
+        BasicTokenizer,
+        FNetBertConfig,
+        FNetBertTokenizer,
+        WordpieceTokenizer,
+    )
     from .models.bert_generation import BertGenerationConfig
     from .models.bert_japanese import BertJapaneseTokenizer, CharacterTokenizer, MecabTokenizer
     from .models.bertweet import BertweetTokenizer
@@ -1960,17 +1967,17 @@ if TYPE_CHECKING:
             load_tf_weights_in_bert,
         )
         from .models.bert_FNet import (
-            BERT_PRETRAINED_MODEL_ARCHIVE_LIST,
-            BertForMaskedLM,
-            BertForMultipleChoice,
-            BertForNextSentencePrediction,
-            BertForPreTraining,
-            BertForQuestionAnswering,
-            BertForSequenceClassification,
-            BertForTokenClassification,
+            FNetBERT_PRETRAINED_MODEL_ARCHIVE_LIST,
+            FNetBertForMaskedLM,
+            FNetBertForMultipleChoice,
+            FNetBertForNextSentencePrediction,
+            FNetBertForPreTraining,
+            FNetBertForQuestionAnswering,
+            FNetBertForSequenceClassification,
+            FNetBertForTokenClassification,
             BertLayer,
-            BertLMHeadModel,
-            BertModel,
+            FNetBertLMHeadModel,
+            FNetBertModel,
             BertPreTrainedModel,
             load_tf_weights_in_bert,
         )
